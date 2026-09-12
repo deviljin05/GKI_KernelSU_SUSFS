@@ -1,5 +1,6 @@
 name: 'Setup SUSFS Branch'
-description: 'Clone SUSFS repo and cherry-pick commits'
+description: 'Clone SUSFS repo and prepare the selected SUSFS branch'
+
 inputs:
   susfs_commit:
     description: 'SUSFS commit hash (empty = latest on auto-derived gki-{version} branch)'
@@ -34,7 +35,12 @@ runs:
 
         echo "Preparing SUSFS for branch: $SUSFS_BRANCH"
         echo "Cloning latest from $SUSFS_BRANCH..."
-        retry git clone "$SUSFS_REPO" -b "$SUSFS_BRANCH" susfs4ksu
+
+        rm -rf "${{ github.workspace }}/susfs4ksu"
+
+        retry git clone "$SUSFS_REPO" \
+          -b "$SUSFS_BRANCH" \
+          "${{ github.workspace }}/susfs4ksu"
 
         if [ -n "${{ inputs.susfs_commit }}" ]; then
           echo "Checking out SUSFS commit: ${{ inputs.susfs_commit }}"
@@ -42,9 +48,9 @@ runs:
         fi
 
         cd "${{ github.workspace }}/susfs4ksu"
+
         SUSFS_COMMIT="$(git rev-parse HEAD)"
         echo "SUSFS_COMMIT=$SUSFS_COMMIT" >> "$GITHUB_ENV"
-        echo "Using SUSFS commit: $SUSFS_COMMIT"
 
-        patch -p1 < "${{ github.workspace }}/kernel_patches/pershoot/susfs4ksu/0001-pershoot-Allow-core-to-be-built-with-no-features.patch"
-        patch -p1 < "${{ github.workspace }}/kernel_patches/pershoot/susfs4ksu/0002-pershoot-Implement-SuSFS-and-Toolkit-coexistence.patch"
+        echo "Using SUSFS commit: $SUSFS_COMMIT"
+        echo "SUSFS checkout completed successfully."
