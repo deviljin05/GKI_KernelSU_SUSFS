@@ -452,6 +452,9 @@ jobs:
     - name: Initialize Config Fragment
       run: touch "${{ github.workspace }}/wild_gki.fragment"
 
+    - name: Custom Kernel Configs
+      uses: ./.github/actions/custom-config
+
     - name: Apply Kernel Bypass Hack
       if: ${{ inputs.bypass == 'true' }}
       uses: ./.github/actions/bypass-kernel
